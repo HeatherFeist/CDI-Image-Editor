@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { RenovationPanel } from './components/RenovationPanel';
 import { MarketplacePanel } from './components/MarketplacePanel';
@@ -6,7 +6,7 @@ import { GeneralPanel } from './components/GeneralPanel';
 import { ResultViewer } from './components/ResultViewer';
 import { AppMode, UploadedImage, GenerationResult, SavedImage } from './types';
 import { generateImageEdit } from './services/geminiService';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Key, Sparkles, ArrowRight } from 'lucide-react';
 
 // Internal type for history management
 type HistoryItem = {
@@ -15,6 +15,9 @@ type HistoryItem = {
 };
 
 const App: React.FC = () => {
+  const [hasApiKey, setHasApiKey] = useState<boolean>(false);
+  const [isCheckingKey, setIsCheckingKey] = useState<boolean>(true);
+
   const [mode, setMode] = useState<AppMode>(AppMode.RENOVATION);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +34,27 @@ const App: React.FC = () => {
   // Saved/Library State
   const [savedImages, setSavedImages] = useState<SavedImage[]>([]);
   const [isSending, setIsSending] = useState(false);
+
+  useEffect(() => {
+    checkApiKey();
+  }, []);
+
+  const checkApiKey = async () => {
+    if (window.aistudio) {
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      setHasApiKey(hasKey);
+    }
+    setIsCheckingKey(false);
+  };
+
+  const handleConnectKey = async () => {
+    if (window.aistudio) {
+      await window.aistudio.openSelectKey();
+      // Re-check after selection (race condition mitigation handled by user waiting for dialog)
+      const hasKey = await window.aistudio.hasSelectedApiKey();
+      setHasApiKey(hasKey);
+    }
+  };
 
   // Reset result and history when mode changes
   const handleModeChange = (newMode: AppMode) => {
@@ -50,7 +74,7 @@ const App: React.FC = () => {
     setOriginalImage(baseImage); // Store for comparison
 
     try {
-      // Use Gemini 2.5 Flash Image for all edits
+      // Ensure we are using the latest key context
       const generatedBase64 = await generateImageEdit(
         'gemini-2.5-flash-image',
         prompt,
@@ -79,6 +103,10 @@ const App: React.FC = () => {
 
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred during generation.");
+      // If authorization failed, it might be a key issue
+      if (err.message?.includes('403') || err.message?.includes('API key')) {
+        setHasApiKey(false);
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -136,6 +164,56 @@ const App: React.FC = () => {
     // Clear notification after 3 seconds
     setTimeout(() => setNotification(null), 3000);
   };
+
+  if (isCheckingKey) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-slate-900 text-slate-200">
+        <div className="animate-pulse flex flex-col items-center">
+          <Sparkles size={48} className="text-indigo-500 mb-4" />
+          <p className="text-lg font-medium text-slate-400">Initializing CDI Image Editor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hasApiKey) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-slate-900 text-slate-200 p-6">
+        <div className="max-w-md w-full bg-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl border border-slate-700 text-center space-y-8">
+          <div className="flex justify-center">
+            <div className="bg-indigo-600/20 p-4 rounded-2xl ring-1 ring-indigo-500/30">
+               <Sparkles size={48} className="text-indigo-400" />
+            </div>
+          </div>
+          
+          <div>
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400 mb-3">
+              CDI Image Editor
+            </h1>
+            <p className="text-slate-400 leading-relaxed">
+              Connect your Google account to access professional AI renovation and marketplace tools.
+            </p>
+          </div>
+
+          <button
+            onClick={handleConnectKey}
+            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/20 transition-all flex items-center justify-center gap-3 group"
+          >
+            <Key size={20} className="group-hover:rotate-12 transition-transform" />
+            Connect API Key
+            <ArrowRight size={20} className="opacity-60 group-hover:translate-x-1 transition-transform" />
+          </button>
+
+          <div className="text-xs text-slate-500 pt-4 border-t border-slate-700">
+            <p>Securely processed via Google AI Studio.</p>
+            <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline mt-1 inline-block">
+              View Billing & Access Details
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-900 text-slate-200">

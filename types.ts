@@ -23,3 +23,10 @@ export interface SavedImage extends GenerationResult {
   originalUrl: string;
   mode: AppMode;
 }
+
+declare global {
+  interface AIStudio {
+    hasSelectedApiKey: () => Promise<boolean>;
+    openSelectKey: () => Promise<void>;
+  }
+}
