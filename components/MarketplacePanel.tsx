@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
+import { ImageCropper } from './ImageCropper';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, ShieldCheck, History, AlertCircle, Check } from 'lucide-react';
+import { ArrowRight, Loader2, ShieldCheck, History, AlertCircle, Check, Crop, ExternalLink, Store } from 'lucide-react';
 
 interface MarketplacePanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage) => Promise<void>;
@@ -17,6 +18,7 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
   activeInputImage 
 }) => {
   const [productImage, setProductImage] = useState<UploadedImage | null>(null);
+  const [croppingImage, setCroppingImage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
 
   // Effect to handle cumulative edits
@@ -25,6 +27,24 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
       setProductImage(activeInputImage);
     }
   }, [activeInputImage]);
+
+  const handleUpload = (image: UploadedImage) => {
+    // Instead of setting directly, open cropper first
+    setCroppingImage(image.previewUrl);
+    // We temporarily store the full file object if needed, but for now we just use the preview for cropping
+  };
+
+  const handleCropComplete = (croppedBase64: string) => {
+    const croppedImage: UploadedImage = {
+      id: Math.random().toString(36).substr(2, 9),
+      file: new File(["cropped"], "product-crop.png", { type: "image/png" }),
+      previewUrl: croppedBase64,
+      base64: croppedBase64,
+      mimeType: "image/png"
+    };
+    setProductImage(croppedImage);
+    setCroppingImage(null);
+  };
 
   const handleSubmit = () => {
     if (!productImage) return;
@@ -49,6 +69,14 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
 
   return (
     <div className="space-y-8 animate-fade-in">
+      {croppingImage && (
+        <ImageCropper 
+          imageSrc={croppingImage}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCroppingImage(null)}
+        />
+      )}
+
       <div>
         <h2 className="text-2xl font-bold text-white mb-2">Marketplace Studio</h2>
         <p className="text-slate-400">Create professional staging for your products without hiding their true condition.</p>
@@ -57,13 +85,24 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-4">
           <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">Product Photo</h3>
-          <ImageUploader 
-            label="Upload Product"
-            image={productImage}
-            onUpload={setProductImage}
-            onRemove={() => setProductImage(null)}
-            className="h-80"
-          />
+          <div className="relative">
+            <ImageUploader 
+              label="Upload Product"
+              image={productImage}
+              onUpload={handleUpload}
+              onRemove={() => setProductImage(null)}
+              className="h-80"
+            />
+            {productImage && (
+              <button 
+                onClick={() => setCroppingImage(productImage.previewUrl)}
+                className="absolute bottom-4 right-4 bg-slate-800 text-slate-200 p-2 rounded-lg border border-slate-600 hover:bg-slate-700 hover:text-orange-400 transition-colors shadow-lg z-10"
+                title="Crop Image"
+              >
+                <Crop size={18} />
+              </button>
+            )}
+          </div>
           
           <div className="bg-emerald-900/20 border border-emerald-700/50 p-4 rounded-xl flex gap-3 items-start">
             <ShieldCheck className="text-emerald-500 shrink-0 mt-0.5" size={20} />
@@ -73,6 +112,34 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
                 AI is instructed to preserve all defects, scratches, and details.
               </p>
             </div>
+          </div>
+
+          {/* CDI Marketplace Integration Card */}
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl p-4 shadow-lg">
+             <div className="flex items-center gap-2 mb-3 text-orange-400 font-bold text-sm">
+               <Store size={18} /> Connect to Marketplace
+             </div>
+             <p className="text-xs text-slate-400 mb-4">
+               Manage listings and sync assets directly to your seller dashboard.
+             </p>
+             <div className="grid grid-cols-2 gap-2">
+                <a 
+                  href="https://marketplace.constructivedesignsinc.org" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                >
+                  Launch App <ExternalLink size={12} />
+                </a>
+                <a 
+                  href="https://marketplace.constructivedesignsinc.org/dashboard" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold py-2 px-3 rounded-lg border border-slate-600 transition-colors"
+                >
+                  Seller Dash
+                </a>
+             </div>
           </div>
 
           <div className="bg-slate-800/50 border border-slate-700 p-3 rounded-xl flex gap-2 items-start text-xs text-slate-400">
