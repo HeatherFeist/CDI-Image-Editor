@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, Coins, Gem, Zap, History, Plus, Upload, Type } from 'lucide-react';
+import { ArrowRight, Loader2, Coins, Gem, Zap, History, Plus, Upload, Type, AlertCircle } from 'lucide-react';
 
 interface MerchantCoinPanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage | null) => Promise<void>;
@@ -22,6 +22,7 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
   const [coinImage, setCoinImage] = useState<UploadedImage | null>(null);
   const [coinName, setCoinName] = useState('');
   const [prompt, setPrompt] = useState('');
+  const [showValidation, setShowValidation] = useState(false);
 
   // Effect to handle cumulative edits
   useEffect(() => {
@@ -55,8 +56,17 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
   ];
 
   const handleSubmit = () => {
+    setShowValidation(false);
+
     if (mode === 'enhance' && !coinImage) return;
-    if (mode === 'create' && !coinName) return;
+    
+    // VALIDATION: Prompt user for name if missing in Create mode
+    if (mode === 'create' && !coinName.trim()) {
+      setShowValidation(true);
+      return;
+    }
+
+    if (!prompt) return;
 
     let finalPrompt = '';
 
@@ -76,24 +86,26 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
     } else {
       // Create from Scratch
       finalPrompt = `You are an expert logo designer and 3D artist.
-      TASK: Create a new cryptocurrency logo/coin from scratch.
+      TASK: Create a new branded token or coin from scratch.
       
       BRAND NAME: "${coinName}"
       
       DESIGN STYLE & BACKGROUND: ${prompt}
       
       INSTRUCTIONS:
-      1. LOGO DESIGN: Create a modern, iconic logo for the coin named "${coinName}". The text "${coinName}" should be clearly legible on the coin face or near it.
-      2. 3D RENDERING: Render this as a physical "Merchant Coin" or "Token". 
+      1. LOGO DESIGN: Create a modern, iconic logo for the brand named "${coinName}". The text "${coinName}" should be clearly legible on the coin face.
+      2. 3D RENDERING: Render this as a high-quality physical "Merchant Coin" or "Medallion". 
       3. VISUALS: Ensure high resolution, sharp details, and premium materials (gold, silver, holographic, etc. based on style).
       
-      Output a high-quality 3D render of this new coin.`;
+      Output a photorealistic 3D render of this new coin asset.`;
       
       onGenerate(finalPrompt, null);
     }
   };
 
-  const isDisabled = isGenerating || (mode === 'enhance' ? !coinImage : !coinName) || !prompt;
+  // Button disabled logic: Only disable if purely essential generation blockers exist (like isGenerating). 
+  // We leave it enabled for missing Name so we can show the validation error on click.
+  const isDisabled = isGenerating || (mode === 'enhance' && !coinImage) || !prompt;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -145,21 +157,42 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
               className="h-80"
             />
           ) : (
-            <div className="h-80 bg-slate-800/50 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center space-y-6">
+            <div className={`h-80 bg-slate-800/50 border rounded-2xl p-6 flex flex-col justify-center space-y-6 transition-colors ${
+              showValidation && !coinName.trim() ? 'border-red-500 bg-red-500/5' : 'border-slate-700'
+            }`}>
               <div className="text-center">
-                <div className="w-16 h-16 bg-orange-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-500/30">
-                  <Type className="text-orange-400" size={32} />
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border transition-colors ${
+                  showValidation && !coinName.trim() ? 'bg-red-500/20 border-red-500/50' : 'bg-orange-600/20 border-orange-500/30'
+                }`}>
+                  <Type className={showValidation && !coinName.trim() ? 'text-red-400' : 'text-orange-400'} size={32} />
                 </div>
                 <h4 className="text-white font-medium mb-1">Name Your Coin</h4>
                 <p className="text-xs text-slate-500">What text should appear on the coin?</p>
               </div>
-              <input
-                type="text"
-                value={coinName}
-                onChange={(e) => setCoinName(e.target.value)}
-                placeholder="e.g. Bitcoin, CDI Token, GoldStar..."
-                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600"
-              />
+              
+              <div>
+                <input
+                  type="text"
+                  value={coinName}
+                  onChange={(e) => {
+                    setCoinName(e.target.value);
+                    if (e.target.value) setShowValidation(false);
+                  }}
+                  placeholder="e.g. Bitcoin, CDI Token..."
+                  className={`w-full bg-slate-900 border rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:ring-2 focus:outline-none placeholder:text-slate-600 ${
+                    showValidation && !coinName.trim() 
+                      ? 'border-red-500 focus:ring-red-500' 
+                      : 'border-slate-600 focus:ring-orange-500 focus:border-transparent'
+                  }`}
+                />
+                {showValidation && !coinName.trim() && (
+                  <div className="flex items-center justify-center gap-1 mt-2 text-red-400 text-xs animate-pulse">
+                    <AlertCircle size={12} />
+                    <span>Please enter a coin name</span>
+                  </div>
+                )}
+              </div>
+
               <div className="text-center">
                  <p className="text-xs text-orange-400/80">
                    AI will generate a unique logo and 3D coin design based on this name.
