@@ -205,7 +205,7 @@ const App: React.FC = () => {
     switch (mode) {
       case AppMode.RENOVATION: return 'Renovision Pro';
       case AppMode.MARKETPLACE: return 'CDI Marketplace';
-      case AppMode.MERCHANT_COIN: return 'Quantum Wallet';
+      case AppMode.MERCHANT_COIN: return 'Merchant Wallet';
       default: return 'My Library';
     }
   };
@@ -225,7 +225,7 @@ const App: React.FC = () => {
 
     setSavedImages(prev => [newSavedImage, ...prev]);
     const appName = getTargetAppName();
-    setNotification(`Asset sent to ${appName} bucket!`);
+    setNotification(`Image successfully sent to ${appName}!`);
     setIsSending(false);
     setTimeout(() => setNotification(null), 3000);
   };

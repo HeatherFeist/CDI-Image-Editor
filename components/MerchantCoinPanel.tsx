@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, Coins, Gem, Zap, History, Plus, Upload, Type, AlertCircle, Wallet } from 'lucide-react';
+import { ArrowRight, Loader2, Coins, Gem, Zap, History, Plus, Upload, Type } from 'lucide-react';
 
 interface MerchantCoinPanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage | null) => Promise<void>;
@@ -22,7 +22,6 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
   const [coinImage, setCoinImage] = useState<UploadedImage | null>(null);
   const [coinName, setCoinName] = useState('');
   const [prompt, setPrompt] = useState('');
-  const [showValidation, setShowValidation] = useState(false);
 
   // Effect to handle cumulative edits
   useEffect(() => {
@@ -56,17 +55,8 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
   ];
 
   const handleSubmit = () => {
-    setShowValidation(false);
-
     if (mode === 'enhance' && !coinImage) return;
-    
-    // VALIDATION: Prompt user for name if missing in Create mode
-    if (mode === 'create' && !coinName.trim()) {
-      setShowValidation(true);
-      return;
-    }
-
-    if (!prompt) return;
+    if (mode === 'create' && !coinName) return;
 
     let finalPrompt = '';
 
@@ -86,26 +76,24 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
     } else {
       // Create from Scratch
       finalPrompt = `You are an expert logo designer and 3D artist.
-      TASK: Create a new branded token or coin from scratch.
+      TASK: Create a new cryptocurrency logo/coin from scratch.
       
       BRAND NAME: "${coinName}"
       
       DESIGN STYLE & BACKGROUND: ${prompt}
       
       INSTRUCTIONS:
-      1. LOGO DESIGN: Create a modern, iconic logo for the brand named "${coinName}". The text "${coinName}" should be clearly legible on the coin face.
-      2. 3D RENDERING: Render this as a high-quality physical "Merchant Coin" or "Medallion". 
+      1. LOGO DESIGN: Create a modern, iconic logo for the coin named "${coinName}". The text "${coinName}" should be clearly legible on the coin face or near it.
+      2. 3D RENDERING: Render this as a physical "Merchant Coin" or "Token". 
       3. VISUALS: Ensure high resolution, sharp details, and premium materials (gold, silver, holographic, etc. based on style).
       
-      Output a photorealistic 3D render of this new coin asset.`;
+      Output a high-quality 3D render of this new coin.`;
       
       onGenerate(finalPrompt, null);
     }
   };
 
-  // Button disabled logic: Only disable if purely essential generation blockers exist (like isGenerating). 
-  // We leave it enabled for missing Name so we can show the validation error on click.
-  const isDisabled = isGenerating || (mode === 'enhance' && !coinImage) || !prompt;
+  const isDisabled = isGenerating || (mode === 'enhance' ? !coinImage : !coinName) || !prompt;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -157,42 +145,21 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
               className="h-80"
             />
           ) : (
-            <div className={`h-80 bg-slate-800/50 border rounded-2xl p-6 flex flex-col justify-center space-y-6 transition-colors ${
-              showValidation && !coinName.trim() ? 'border-red-500 bg-red-500/5' : 'border-slate-700'
-            }`}>
+            <div className="h-80 bg-slate-800/50 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center space-y-6">
               <div className="text-center">
-                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border transition-colors ${
-                  showValidation && !coinName.trim() ? 'bg-red-500/20 border-red-500/50' : 'bg-orange-600/20 border-orange-500/30'
-                }`}>
-                  <Type className={showValidation && !coinName.trim() ? 'text-red-400' : 'text-orange-400'} size={32} />
+                <div className="w-16 h-16 bg-orange-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-500/30">
+                  <Type className="text-orange-400" size={32} />
                 </div>
                 <h4 className="text-white font-medium mb-1">Name Your Coin</h4>
                 <p className="text-xs text-slate-500">What text should appear on the coin?</p>
               </div>
-              
-              <div>
-                <input
-                  type="text"
-                  value={coinName}
-                  onChange={(e) => {
-                    setCoinName(e.target.value);
-                    if (e.target.value) setShowValidation(false);
-                  }}
-                  placeholder="e.g. Bitcoin, CDI Token..."
-                  className={`w-full bg-slate-900 border rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:ring-2 focus:outline-none placeholder:text-slate-600 ${
-                    showValidation && !coinName.trim() 
-                      ? 'border-red-500 focus:ring-red-500' 
-                      : 'border-slate-600 focus:ring-orange-500 focus:border-transparent'
-                  }`}
-                />
-                {showValidation && !coinName.trim() && (
-                  <div className="flex items-center justify-center gap-1 mt-2 text-red-400 text-xs animate-pulse">
-                    <AlertCircle size={12} />
-                    <span>Please enter a coin name</span>
-                  </div>
-                )}
-              </div>
-
+              <input
+                type="text"
+                value={coinName}
+                onChange={(e) => setCoinName(e.target.value)}
+                placeholder="e.g. Bitcoin, CDI Token, GoldStar..."
+                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600"
+              />
               <div className="text-center">
                  <p className="text-xs text-orange-400/80">
                    AI will generate a unique logo and 3D coin design based on this name.
@@ -253,35 +220,25 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
             )}
           </button>
 
-           {/* History Section - Updated to "Bucket" */}
+           {/* History Section */}
            {history.length > 0 && (
             <div className="pt-8 border-t border-slate-800">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-300 flex items-center gap-2">
-                  <Wallet size={20} className="text-orange-400" /> 
-                  Quantum Wallet • Asset Bucket
-                </h3>
-                <span className="text-xs font-medium text-emerald-400 bg-emerald-900/30 px-2 py-1 rounded-md border border-emerald-900">
-                  {history.length} Assets Synced
-                </span>
-              </div>
+              <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                <History size={20} /> Saved Branding Assets
+              </h3>
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 {history.map((item) => (
-                  <div key={item.id} className="group relative rounded-xl overflow-hidden border border-slate-700 aspect-square shadow-lg shadow-black/40">
+                  <div key={item.id} className="group relative rounded-lg overflow-hidden border border-slate-700 aspect-square">
                     <img src={item.imageUrl} alt="Saved Asset" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                      <p className="text-[10px] text-orange-200 font-medium uppercase tracking-wider mb-0.5">Quantum Vault</p>
-                      <p className="text-xs text-white font-bold truncate">Synced Asset</p>
+                      <p className="text-xs text-white font-medium truncate">Coin Asset</p>
                     </div>
-                     <div className="absolute top-1 right-1 bg-gradient-to-br from-orange-500 to-red-600 p-1.5 rounded-full shadow-md">
-                       <Zap size={10} className="text-white fill-white" />
+                     <div className="absolute top-1 right-1 bg-yellow-500/90 p-1 rounded-full">
+                       <ArrowRight size={10} className="text-black -rotate-45" />
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-center text-[10px] text-slate-500 mt-4">
-                These assets are saved in your bucket and ready for deployment to the Quantum Wallet.
-              </p>
             </div>
           )}
         </div>
