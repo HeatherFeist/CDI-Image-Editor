@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, ShieldCheck, History } from 'lucide-react';
+import { ArrowRight, Loader2, ShieldCheck, History, AlertCircle } from 'lucide-react';
 
 interface MarketplacePanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage) => Promise<void>;
@@ -30,17 +30,19 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
     if (!productImage) return;
 
     const finalPrompt = `You are a professional product photographer editing an auction listing.
-    TASK: Place the product from the source image into a new background scene.
+    TASK: Change the background of the image while keeping the foreground product EXACTLY identical.
     
     CRITICAL RULES FOR AUCTION INTEGRITY:
-    1. PRESERVE PRODUCT: You MUST keep the product object EXACTLY as it appears in the original image.
-    2. SHOW DEFECTS: Do NOT fix scratches, dents, rust, or wear. The buyer needs to see the true condition.
-    3. PRESERVE GEOMETRY: Do not warp, resize, or crop the product itself significantly.
+    1. PRESERVE PRODUCT: The foreground object (blouse, shoes, tool, etc.) must remain pixel-perfect where possible.
+    2. TEXTURE & DEFECTS: Do NOT smooth out fabric wrinkles, scratches, or wear. 
+    3. APPAREL SPECIFIC: If the item is clothing, preserve the drape, fold, and fit exactly. Do not change the color or pattern.
     
     SCENE GENERATION:
-    - Create a new background described as: "${prompt}"
-    - Ensure the lighting on the product matches the new background environment (shadows, reflections) naturally.
-    - The final image should look like a professional photo shoot of the specific item in its current condition.`;
+    - New Background: "${prompt}"
+    - Lighting: Apply lighting to the background that matches the product's existing lighting.
+    - Separation: cleanly separate the product from its original background.
+    
+    The final image should look like a professional e-commerce photo of THIS SPECIFIC ITEM.`;
 
     onGenerate(finalPrompt, productImage);
   };
@@ -62,14 +64,22 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
             onRemove={() => setProductImage(null)}
             className="h-80"
           />
+          
           <div className="bg-emerald-900/20 border border-emerald-700/50 p-4 rounded-xl flex gap-3 items-start">
             <ShieldCheck className="text-emerald-500 shrink-0 mt-0.5" size={20} />
             <div>
               <p className="text-sm font-semibold text-emerald-200 mb-1">True to Life Guarantee</p>
               <p className="text-xs text-emerald-200/70">
-                AI is instructed to preserve all defects, scratches, and details for honest auction listings.
+                AI is instructed to preserve all defects, scratches, and details.
               </p>
             </div>
+          </div>
+
+          <div className="bg-slate-800/50 border border-slate-700 p-3 rounded-xl flex gap-2 items-start text-xs text-slate-400">
+             <AlertCircle size={14} className="mt-0.5 text-orange-400 shrink-0" />
+             <p>
+               <strong>Tip for Clothing:</strong> For best results, use a mannequin or flat-lay photo. Avoid photos with faces to prevent safety blocks.
+             </p>
           </div>
         </div>
 
@@ -78,10 +88,10 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
             <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">Background Setting</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                {[
-                 "On a clean white marble countertop with soft morning light",
-                 "In a cozy rustic living room on a wooden table",
-                 "Studio lighting with a solid dark grey background",
-                 "Outdoors on a wooden deck with blurred nature background"
+                 "On a clean white marble countertop",
+                 "Floating against a soft pastel gradient",
+                 "Hanging on a rack in a boutique store",
+                 "Laid flat on rustic white wood planks"
                ].map((preset, idx) => (
                  <button
                    key={idx}

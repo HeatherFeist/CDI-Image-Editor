@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, Coins, Gem, Zap, History } from 'lucide-react';
+import { ArrowRight, Loader2, Coins, Gem, Zap, History, Plus, Upload, Type } from 'lucide-react';
 
 interface MerchantCoinPanelProps {
-  onGenerate: (prompt: string, baseImage: UploadedImage) => Promise<void>;
+  onGenerate: (prompt: string, baseImage: UploadedImage | null) => Promise<void>;
   isGenerating: boolean;
   history: SavedImage[];
   activeInputImage: UploadedImage | null;
 }
+
+type CoinMode = 'enhance' | 'create';
 
 export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({ 
   onGenerate, 
@@ -16,13 +18,16 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
   history,
   activeInputImage 
 }) => {
+  const [mode, setMode] = useState<CoinMode>('enhance');
   const [coinImage, setCoinImage] = useState<UploadedImage | null>(null);
+  const [coinName, setCoinName] = useState('');
   const [prompt, setPrompt] = useState('');
 
   // Effect to handle cumulative edits
   useEffect(() => {
     if (activeInputImage) {
       setCoinImage(activeInputImage);
+      setMode('enhance'); // Switch to enhance mode if we are editing a result
     }
   }, [activeInputImage]);
 
@@ -30,62 +35,138 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
     { 
       label: "Gold & Luxury", 
       icon: <Gem size={16} />,
-      desc: "Render the coin with a high-polish 3D gold texture. Background: Dark velvet luxury setting with rim lighting." 
+      desc: "High-polish 3D gold texture. Background: Dark velvet luxury setting with rim lighting." 
     },
     { 
       label: "Cyber Neon", 
       icon: <Zap size={16} />,
-      desc: "Give the coin a glowing futuristic neon edge. Background: Cyberpunk city grid with teal and orange lights." 
+      desc: "Glowing futuristic neon edges. Background: Cyberpunk city grid with teal and orange lights." 
     },
     { 
       label: "3D Floating", 
       icon: <Coins size={16} />,
-      desc: "Make the coin appear as a solid 3D object floating in mid-air. Background: Clean, modern abstract gradient." 
+      desc: "Solid 3D object floating in mid-air. Background: Clean, modern abstract gradient." 
     },
     { 
       label: "Professional Marketing", 
       icon: <History size={16} />,
-      desc: "Display the coin on a sleek corporate podium. Background: Professional blurred office or showroom environment." 
+      desc: "Displayed on a sleek corporate podium. Background: Professional blurred office environment." 
     }
   ];
 
   const handleSubmit = () => {
-    if (!coinImage) return;
+    if (mode === 'enhance' && !coinImage) return;
+    if (mode === 'create' && !coinName) return;
 
-    const finalPrompt = `You are an expert 3D branding artist and marketing designer.
-    TASK: Enhance the provided Merchant Coin or Logo image for a high-end marketing campaign.
-    
-    INSTRUCTIONS:
-    1. SUBJECT ENHANCEMENT: Treat the input image as a "Coin" or "Token". Enhance its appearance to look like a premium physical object (add subtle depth, texture, or sheen while keeping the logo/design clear).
-    2. BACKGROUND: ${prompt}
-    3. LIGHTING: Use professional studio lighting to highlight the details of the coin.
-    4. COMPOSITION: Center the coin or place it dynamically for a marketing advertisement.
-    
-    Make the final image look like a high-budget 3D render or professional product photo.`;
+    let finalPrompt = '';
 
-    onGenerate(finalPrompt, coinImage);
+    if (mode === 'enhance' && coinImage) {
+      finalPrompt = `You are an expert 3D branding artist and marketing designer.
+      TASK: Enhance the provided Merchant Coin or Logo image for a high-end marketing campaign.
+      
+      INSTRUCTIONS:
+      1. SUBJECT ENHANCEMENT: Treat the input image as a "Coin" or "Token". Enhance its appearance to look like a premium physical object (add subtle depth, texture, or sheen while keeping the logo/design clear).
+      2. BACKGROUND & STYLE: ${prompt}
+      3. LIGHTING: Use professional studio lighting to highlight the details of the coin.
+      4. COMPOSITION: Center the coin or place it dynamically for a marketing advertisement.
+      
+      Make the final image look like a high-budget 3D render or professional product photo.`;
+      
+      onGenerate(finalPrompt, coinImage);
+    } else {
+      // Create from Scratch
+      finalPrompt = `You are an expert logo designer and 3D artist.
+      TASK: Create a new cryptocurrency logo/coin from scratch.
+      
+      BRAND NAME: "${coinName}"
+      
+      DESIGN STYLE & BACKGROUND: ${prompt}
+      
+      INSTRUCTIONS:
+      1. LOGO DESIGN: Create a modern, iconic logo for the coin named "${coinName}". The text "${coinName}" should be clearly legible on the coin face or near it.
+      2. 3D RENDERING: Render this as a physical "Merchant Coin" or "Token". 
+      3. VISUALS: Ensure high resolution, sharp details, and premium materials (gold, silver, holographic, etc. based on style).
+      
+      Output a high-quality 3D render of this new coin.`;
+      
+      onGenerate(finalPrompt, null);
+    }
   };
+
+  const isDisabled = isGenerating || (mode === 'enhance' ? !coinImage : !coinName) || !prompt;
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
-        <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-          <Coins className="text-orange-400" />
-          Merchant Coin Studio
-        </h2>
-        <p className="text-slate-400">Design premium marketing visuals, 3D renders, and social media assets for your brand tokens.</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+            <Coins className="text-orange-400" />
+            Merchant Coin Studio
+          </h2>
+          <p className="text-slate-400">Design premium marketing visuals or generate new brand assets.</p>
+        </div>
+        
+        <div className="bg-slate-900 p-1 rounded-xl flex border border-slate-700">
+          <button
+            onClick={() => setMode('enhance')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              mode === 'enhance' 
+                ? 'bg-orange-600 text-white shadow-lg' 
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Upload size={16} /> Enhance Upload
+          </button>
+          <button
+            onClick={() => setMode('create')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              mode === 'create' 
+                ? 'bg-orange-600 text-white shadow-lg' 
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Plus size={16} /> Create New
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-4">
-          <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">Coin / Logo Upload</h3>
-          <ImageUploader 
-            label="Upload Coin or Logo"
-            image={coinImage}
-            onUpload={setCoinImage}
-            onRemove={() => setCoinImage(null)}
-            className="h-80"
-          />
+          <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">
+            {mode === 'enhance' ? 'Coin / Logo Upload' : 'Brand Details'}
+          </h3>
+          
+          {mode === 'enhance' ? (
+            <ImageUploader 
+              label="Upload Coin or Logo"
+              image={coinImage}
+              onUpload={setCoinImage}
+              onRemove={() => setCoinImage(null)}
+              className="h-80"
+            />
+          ) : (
+            <div className="h-80 bg-slate-800/50 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center space-y-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-orange-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-500/30">
+                  <Type className="text-orange-400" size={32} />
+                </div>
+                <h4 className="text-white font-medium mb-1">Name Your Coin</h4>
+                <p className="text-xs text-slate-500">What text should appear on the coin?</p>
+              </div>
+              <input
+                type="text"
+                value={coinName}
+                onChange={(e) => setCoinName(e.target.value)}
+                placeholder="e.g. Bitcoin, CDI Token, GoldStar..."
+                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600"
+              />
+              <div className="text-center">
+                 <p className="text-xs text-orange-400/80">
+                   AI will generate a unique logo and 3D coin design based on this name.
+                 </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="lg:col-span-2 space-y-6">
@@ -110,11 +191,14 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
             </div>
             
             <div className="space-y-2">
-              <label className="text-xs text-slate-500 uppercase font-semibold">Custom Marketing Prompt</label>
+              <label className="text-xs text-slate-500 uppercase font-semibold">Custom Design Instructions</label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Describe the desired marketing scene... e.g. Floating above a digital circuit board map of the world."
+                placeholder={mode === 'enhance' 
+                  ? "Describe the marketing background... e.g. Floating above a digital circuit board." 
+                  : "Describe the logo style... e.g. Minimalist geometric lion head, matte black finish."
+                }
                 className="w-full h-32 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600 resize-none"
               />
             </div>
@@ -122,16 +206,16 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
 
           <button
             onClick={handleSubmit}
-            disabled={!coinImage || !prompt || isGenerating}
+            disabled={isDisabled}
             className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             {isGenerating ? (
               <>
-                <Loader2 className="animate-spin" /> Minting Visuals...
+                <Loader2 className="animate-spin" /> {mode === 'enhance' ? 'Rendering Visuals...' : 'Minting New Coin...'}
               </>
             ) : (
               <>
-                Generate Marketing Asset <ArrowRight size={20} />
+                {mode === 'enhance' ? 'Generate Marketing Asset' : 'Generate New Coin'} <ArrowRight size={20} />
               </>
             )}
           </button>

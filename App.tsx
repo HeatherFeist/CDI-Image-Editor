@@ -7,16 +7,16 @@ import { GeneralPanel } from './components/GeneralPanel';
 import { ResultViewer } from './components/ResultViewer';
 import { AppMode, UploadedImage, GenerationResult, SavedImage } from './types';
 import { generateImageEdit } from './services/geminiService';
-import { AlertCircle, CheckCircle2, Key, Sparkles, ArrowRight, Lock } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Key, Sparkles, ArrowRight, Lock } from 'lucide-react';
 
 // Internal type for history management
 type HistoryItem = {
   result: GenerationResult;
-  original: UploadedImage;
+  original: UploadedImage | null;
 };
 
 // Helper to convert base64 string back to UploadedImage object for re-use
-const base64ToUploadedImage = (base64Data: string, sourceOriginal: UploadedImage): UploadedImage => {
+const base64ToUploadedImage = (base64Data: string, sourceOriginal: UploadedImage | null): UploadedImage => {
   return {
     id: Math.random().toString(36).substr(2, 9),
     file: new File(["generated"], "edited-image.png", { type: "image/png" }), // Dummy file object
@@ -115,7 +115,7 @@ const App: React.FC = () => {
     setNotification(null);
   };
 
-  const handleGeneration = async (prompt: string, baseImage: UploadedImage, refImages: UploadedImage[] = []) => {
+  const handleGeneration = async (prompt: string, baseImage: UploadedImage | null, refImages: UploadedImage[] = []) => {
     setIsGenerating(true);
     setError(null);
     setNotification(null);
@@ -126,8 +126,8 @@ const App: React.FC = () => {
       const generatedBase64 = await generateImageEdit(
         'gemini-2.5-flash-image',
         prompt,
-        baseImage.base64,
-        baseImage.mimeType,
+        baseImage?.base64 || null,
+        baseImage?.mimeType || null,
         refImages.map(img => ({ base64: img.base64, mimeType: img.mimeType })),
         customApiKey
       );
@@ -155,7 +155,9 @@ const App: React.FC = () => {
       setActiveInputImage(nextInput);
 
     } catch (err: any) {
+      console.error("App Error:", err);
       setError(err.message || "An unexpected error occurred during generation.");
+      
       // If authorization failed, it might be a key issue
       if (err.message?.includes('403') || err.message?.includes('API key')) {
         setHasApiKey(false);
@@ -179,8 +181,10 @@ const App: React.FC = () => {
       } else {
         setGenerationResult(null);
         setOriginalImage(null);
-        if (sessionHistory.length > 0) {
+        if (sessionHistory.length > 0 && sessionHistory[0].original) {
              setActiveInputImage(sessionHistory[0].original);
+        } else {
+          setActiveInputImage(null);
         }
       }
     }
@@ -207,7 +211,7 @@ const App: React.FC = () => {
   };
 
   const handleSendToApp = async () => {
-    if (!generationResult || !originalImage) return;
+    if (!generationResult) return; // Original image can be null now (creation mode)
 
     setIsSending(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -215,7 +219,7 @@ const App: React.FC = () => {
     const newSavedImage: SavedImage = {
       ...generationResult,
       id: Math.random().toString(36).substr(2, 9),
-      originalUrl: originalImage.previewUrl,
+      originalUrl: originalImage?.previewUrl || generationResult.imageUrl, // Fallback if created from scratch
       mode: mode
     };
 
@@ -320,9 +324,14 @@ const App: React.FC = () => {
 
           {/* Error Banner */}
           {error && (
-            <div className="mb-6 bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-xl flex items-center gap-3">
-              <AlertCircle className="text-red-500" />
-              <p>{error}</p>
+            <div className="mb-6 bg-red-500/10 border border-red-500/50 text-red-200 p-4 rounded-xl flex items-center gap-3 shadow-lg">
+              <div className="bg-red-500/20 p-2 rounded-full">
+                <AlertTriangle className="text-red-500" size={24} />
+              </div>
+              <div>
+                <h4 className="font-bold text-red-400 text-sm uppercase">Generation Failed</h4>
+                <p className="text-sm opacity-90">{error}</p>
+              </div>
             </div>
           )}
 
