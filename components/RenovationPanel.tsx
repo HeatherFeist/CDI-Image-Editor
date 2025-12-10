@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, Plus, Hammer, History, FileText, PenTool, ClipboardList } from 'lucide-react';
+import { ArrowRight, Loader2, Plus, Hammer, History, FileText, PenTool, ClipboardList, ExternalLink, UserPlus } from 'lucide-react';
 
 interface RenovationPanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage, refImages: UploadedImage[]) => Promise<void>;
@@ -194,7 +194,39 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
             />
           </div>
         ) : (
-          <div className="space-y-2 animate-fade-in">
+          <div className="space-y-4 animate-fade-in">
+             {/* Renovision Integration Card */}
+             <div className="bg-gradient-to-r from-slate-800 to-slate-900 border border-orange-500/30 rounded-xl p-4 md:p-5 shadow-lg shadow-black/20">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="text-orange-400 font-bold flex items-center gap-2 mb-1">
+                      <ExternalLink size={18} /> Connect to Renovision
+                    </h4>
+                    <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+                      Access your project dashboard to select an existing estimate or create a new scope of work.
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <a
+                      href="https://renovision.constructivedesignsinc.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold rounded-lg shadow-md transition-all flex items-center justify-center gap-2"
+                    >
+                      Launch Renovision App <ArrowRight size={14} />
+                    </a>
+                    <a
+                      href="https://renovision.constructivedesignsinc.org/signup"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-medium rounded-lg border border-slate-600 transition-all flex items-center justify-center gap-2"
+                    >
+                      <UserPlus size={14} /> Create Account
+                    </a>
+                  </div>
+                </div>
+             </div>
+
              <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-1">
               <div className="bg-slate-900 rounded-lg border border-slate-800 p-4">
                 <div className="flex items-center gap-2 mb-3 text-slate-400 text-xs uppercase tracking-wider font-semibold border-b border-slate-800 pb-2">
@@ -203,8 +235,8 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
                 <textarea
                   value={estimateText}
                   onChange={(e) => setEstimateText(e.target.value)}
-                  placeholder="Paste the project estimate or scope of work here...&#10;&#10;Example:&#10;1. Demolish existing bathtub.&#10;2. Install new walk-in shower using Tile A (Image 1).&#10;3. Replace vanity with Model X (Image 2)."
-                  className="w-full h-48 bg-transparent border-none text-slate-200 focus:ring-0 outline-none placeholder:text-slate-600 resize-none font-mono text-sm"
+                  placeholder="Paste your copied estimate or scope of work here...&#10;&#10;Example:&#10;1. Demolish existing bathtub.&#10;2. Install new walk-in shower using Tile A (Image 1).&#10;3. Replace vanity with Model X (Image 2)."
+                  className="w-full h-40 bg-transparent border-none text-slate-200 focus:ring-0 outline-none placeholder:text-slate-600 resize-none font-mono text-sm"
                 />
               </div>
              </div>

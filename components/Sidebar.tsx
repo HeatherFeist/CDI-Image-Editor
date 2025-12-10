@@ -1,26 +1,22 @@
 import React from 'react';
 import { AppMode } from '../types';
 import { APP_MODES } from '../constants';
-import { Home, ShoppingBag, Wand2, Sparkles, Key, Layers } from 'lucide-react';
+import { Home, ShoppingBag, Wand2, Sparkles, Key, Layers, Coins } from 'lucide-react';
 
 interface SidebarProps {
   currentMode: AppMode;
   onModeChange: (mode: AppMode) => void;
+  onChangeKey?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentMode, onModeChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentMode, onModeChange, onChangeKey }) => {
   const getIcon = (iconName: string) => {
     switch (iconName) {
       case 'Home': return <Home size={20} />;
       case 'ShoppingBag': return <ShoppingBag size={20} />;
       case 'Wand': return <Wand2 size={20} />;
+      case 'Coins': return <Coins size={20} />;
       default: return <Sparkles size={20} />;
-    }
-  };
-
-  const handleChangeKey = async () => {
-    if (window.aistudio) {
-      await window.aistudio.openSelectKey();
     }
   };
 
@@ -56,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, onModeChange }) =
 
       <div className="p-4 border-t border-slate-800">
         <button
-          onClick={handleChangeKey}
+          onClick={onChangeKey}
           className="w-full flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors"
         >
           <Key size={18} />

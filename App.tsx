@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { RenovationPanel } from './components/RenovationPanel';
 import { MarketplacePanel } from './components/MarketplacePanel';
+import { MerchantCoinPanel } from './components/MerchantCoinPanel';
 import { GeneralPanel } from './components/GeneralPanel';
 import { ResultViewer } from './components/ResultViewer';
 import { AppMode, UploadedImage, GenerationResult, SavedImage } from './types';
@@ -200,6 +201,7 @@ const App: React.FC = () => {
     switch (mode) {
       case AppMode.RENOVATION: return 'Renovision Pro';
       case AppMode.MARKETPLACE: return 'CDI Marketplace';
+      case AppMode.MERCHANT_COIN: return 'Merchant Wallet';
       default: return 'My Library';
     }
   };
@@ -303,7 +305,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-900 text-slate-200">
-      <Sidebar currentMode={mode} onModeChange={handleModeChange} />
+      <Sidebar currentMode={mode} onModeChange={handleModeChange} onChangeKey={handleChangeKey} />
       
       <main className="flex-1 overflow-y-auto h-full relative">
         <div className="max-w-6xl mx-auto p-6 lg:p-12">
@@ -339,6 +341,14 @@ const App: React.FC = () => {
                 onGenerate={(prompt, img) => handleGeneration(prompt, img)} 
                 isGenerating={isGenerating} 
                 history={savedImages.filter(img => img.mode === AppMode.MARKETPLACE)}
+                activeInputImage={activeInputImage}
+              />
+            )}
+            {mode === AppMode.MERCHANT_COIN && (
+              <MerchantCoinPanel
+                onGenerate={(prompt, img) => handleGeneration(prompt, img)}
+                isGenerating={isGenerating}
+                history={savedImages.filter(img => img.mode === AppMode.MERCHANT_COIN)}
                 activeInputImage={activeInputImage}
               />
             )}

@@ -1,7 +1,8 @@
 export enum AppMode {
   RENOVATION = 'RENOVATION',
   MARKETPLACE = 'MARKETPLACE',
-  GENERAL = 'GENERAL'
+  GENERAL = 'GENERAL',
+  MERCHANT_COIN = 'MERCHANT_COIN'
 }
 
 export interface UploadedImage {

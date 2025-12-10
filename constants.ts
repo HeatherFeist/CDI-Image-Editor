@@ -14,6 +14,12 @@ export const APP_MODES = [
     icon: 'ShoppingBag'
   },
   {
+    id: AppMode.MERCHANT_COIN,
+    label: 'Merchant Coin Studio',
+    description: 'Design premium marketing visuals and 3D effects for branding coins.',
+    icon: 'Coins'
+  },
+  {
     id: AppMode.GENERAL,
     label: 'Creative Edit',
     description: 'General purpose AI image editing and transformation.',
