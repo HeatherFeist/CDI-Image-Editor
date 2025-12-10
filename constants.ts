@@ -16,7 +16,7 @@ export const APP_MODES = [
   {
     id: AppMode.MERCHANT_COIN,
     label: 'Merchant Coin Studio',
-    description: 'Design premium marketing visuals and 3D effects for branding coins.',
+    description: 'Design premium visuals for Quantum Wallet assets and branding.',
     icon: 'Coins'
   },
   {
