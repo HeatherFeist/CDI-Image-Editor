@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
 import { ArrowRight, Loader2, Plus, Hammer, History, FileText, PenTool, ClipboardList } from 'lucide-react';
@@ -7,11 +7,17 @@ interface RenovationPanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage, refImages: UploadedImage[]) => Promise<void>;
   isGenerating: boolean;
   history: SavedImage[];
+  activeInputImage: UploadedImage | null;
 }
 
 type InputMode = 'manual' | 'estimate';
 
-export const RenovationPanel: React.FC<RenovationPanelProps> = ({ onGenerate, isGenerating, history }) => {
+export const RenovationPanel: React.FC<RenovationPanelProps> = ({ 
+  onGenerate, 
+  isGenerating, 
+  history,
+  activeInputImage 
+}) => {
   const [baseImage, setBaseImage] = useState<UploadedImage | null>(null);
   const [productImages, setProductImages] = useState<UploadedImage[]>([]);
   const [inputMode, setInputMode] = useState<InputMode>('manual');
@@ -21,6 +27,13 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({ onGenerate, is
   
   // State for Estimate Mode
   const [estimateText, setEstimateText] = useState('');
+
+  // Effect to handle cumulative edits (when app passes back a generated result)
+  useEffect(() => {
+    if (activeInputImage) {
+      setBaseImage(activeInputImage);
+    }
+  }, [activeInputImage]);
 
   const handleAddProduct = (img: UploadedImage) => {
     setProductImages(prev => [...prev, img]);

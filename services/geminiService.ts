@@ -10,13 +10,16 @@ export const generateImageEdit = async (
   prompt: string,
   baseImageBase64: string,
   baseImageMimeType: string,
-  referenceImages: { base64: string; mimeType: string }[] = []
+  referenceImages: { base64: string; mimeType: string }[] = [],
+  apiKey?: string
 ): Promise<string> => {
-  if (!process.env.API_KEY) {
-    throw new Error("API Key is missing. Please set process.env.API_KEY.");
+  const finalKey = apiKey || process.env.API_KEY;
+
+  if (!finalKey) {
+    throw new Error("API Key is missing. Please connect your account or provide a key.");
   }
 
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: finalKey });
 
   const parts: any[] = [];
 

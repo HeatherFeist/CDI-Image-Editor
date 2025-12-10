@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
 import { ArrowRight, Loader2, ShieldCheck, History } from 'lucide-react';
@@ -7,11 +7,24 @@ interface MarketplacePanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage) => Promise<void>;
   isGenerating: boolean;
   history: SavedImage[];
+  activeInputImage: UploadedImage | null;
 }
 
-export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({ onGenerate, isGenerating, history }) => {
+export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({ 
+  onGenerate, 
+  isGenerating, 
+  history,
+  activeInputImage 
+}) => {
   const [productImage, setProductImage] = useState<UploadedImage | null>(null);
   const [prompt, setPrompt] = useState('');
+
+  // Effect to handle cumulative edits
+  useEffect(() => {
+    if (activeInputImage) {
+      setProductImage(activeInputImage);
+    }
+  }, [activeInputImage]);
 
   const handleSubmit = () => {
     if (!productImage) return;

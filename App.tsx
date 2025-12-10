@@ -6,7 +6,7 @@ import { GeneralPanel } from './components/GeneralPanel';
 import { ResultViewer } from './components/ResultViewer';
 import { AppMode, UploadedImage, GenerationResult, SavedImage } from './types';
 import { generateImageEdit } from './services/geminiService';
-import { AlertCircle, CheckCircle2, Key, Sparkles, ArrowRight } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Key, Sparkles, ArrowRight, Lock } from 'lucide-react';
 
 // Internal type for history management
 type HistoryItem = {
@@ -14,8 +14,20 @@ type HistoryItem = {
   original: UploadedImage;
 };
 
+// Helper to convert base64 string back to UploadedImage object for re-use
+const base64ToUploadedImage = (base64Data: string, sourceOriginal: UploadedImage): UploadedImage => {
+  return {
+    id: Math.random().toString(36).substr(2, 9),
+    file: new File(["generated"], "edited-image.png", { type: "image/png" }), // Dummy file object
+    previewUrl: base64Data,
+    base64: base64Data,
+    mimeType: "image/png"
+  };
+};
+
 const App: React.FC = () => {
   const [hasApiKey, setHasApiKey] = useState<boolean>(false);
+  const [customApiKey, setCustomApiKey] = useState<string>('');
   const [isCheckingKey, setIsCheckingKey] = useState<boolean>(true);
 
   const [mode, setMode] = useState<AppMode>(AppMode.RENOVATION);
@@ -31,6 +43,9 @@ const App: React.FC = () => {
   const [sessionHistory, setSessionHistory] = useState<HistoryItem[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
+  // State to force update panels with the latest result for cumulative edits
+  const [activeInputImage, setActiveInputImage] = useState<UploadedImage | null>(null);
+
   // Saved/Library State
   const [savedImages, setSavedImages] = useState<SavedImage[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -40,19 +55,50 @@ const App: React.FC = () => {
   }, []);
 
   const checkApiKey = async () => {
+    // 1. Check AI Studio Environment
     if (window.aistudio) {
       const hasKey = await window.aistudio.hasSelectedApiKey();
-      setHasApiKey(hasKey);
+      if (hasKey) {
+        setHasApiKey(true);
+        setIsCheckingKey(false);
+        return;
+      }
     }
+    
+    // 2. Check Local Storage for Manual Key
+    const storedKey = localStorage.getItem('cdi_api_key');
+    if (storedKey) {
+      setCustomApiKey(storedKey);
+      setHasApiKey(true);
+    }
+    
     setIsCheckingKey(false);
   };
 
   const handleConnectKey = async () => {
     if (window.aistudio) {
       await window.aistudio.openSelectKey();
-      // Re-check after selection (race condition mitigation handled by user waiting for dialog)
       const hasKey = await window.aistudio.hasSelectedApiKey();
       setHasApiKey(hasKey);
+    }
+  };
+
+  const handleManualKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customApiKey.trim().length > 10) {
+      localStorage.setItem('cdi_api_key', customApiKey.trim());
+      setHasApiKey(true);
+    } else {
+      setError("Please enter a valid API key.");
+    }
+  };
+
+  const handleChangeKey = () => {
+    setHasApiKey(false);
+    setCustomApiKey('');
+    localStorage.removeItem('cdi_api_key');
+    if (window.aistudio) {
+      window.aistudio.openSelectKey();
     }
   };
 
@@ -63,6 +109,7 @@ const App: React.FC = () => {
     setOriginalImage(null);
     setSessionHistory([]);
     setHistoryIndex(-1);
+    setActiveInputImage(null);
     setError(null);
     setNotification(null);
   };
@@ -74,13 +121,14 @@ const App: React.FC = () => {
     setOriginalImage(baseImage); // Store for comparison
 
     try {
-      // Ensure we are using the latest key context
+      // Pass the custom key if it exists, otherwise the service will try process.env
       const generatedBase64 = await generateImageEdit(
         'gemini-2.5-flash-image',
         prompt,
         baseImage.base64,
         baseImage.mimeType,
-        refImages.map(img => ({ base64: img.base64, mimeType: img.mimeType }))
+        refImages.map(img => ({ base64: img.base64, mimeType: img.mimeType })),
+        customApiKey
       );
 
       const newResult: GenerationResult = {
@@ -101,11 +149,16 @@ const App: React.FC = () => {
       setSessionHistory(newHistory);
       setHistoryIndex(newHistory.length - 1);
 
+      // CUMULATIVE EDIT: Set the result as the new active input for the panel
+      const nextInput = base64ToUploadedImage(generatedBase64, baseImage);
+      setActiveInputImage(nextInput);
+
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred during generation.");
       // If authorization failed, it might be a key issue
       if (err.message?.includes('403') || err.message?.includes('API key')) {
         setHasApiKey(false);
+        localStorage.removeItem('cdi_api_key');
       }
     } finally {
       setIsGenerating(false);
@@ -113,12 +166,22 @@ const App: React.FC = () => {
   };
 
   const handleUndo = () => {
-    if (historyIndex > 0) {
+    if (historyIndex >= 0) {
       const newIndex = historyIndex - 1;
-      const prevItem = sessionHistory[newIndex];
       setHistoryIndex(newIndex);
-      setGenerationResult(prevItem.result);
-      setOriginalImage(prevItem.original);
+
+      if (newIndex >= 0) {
+        const prevItem = sessionHistory[newIndex];
+        setGenerationResult(prevItem.result);
+        setOriginalImage(prevItem.original);
+        setActiveInputImage(base64ToUploadedImage(prevItem.result.imageUrl, prevItem.original));
+      } else {
+        setGenerationResult(null);
+        setOriginalImage(null);
+        if (sessionHistory.length > 0) {
+             setActiveInputImage(sessionHistory[0].original);
+        }
+      }
     }
   };
 
@@ -129,6 +192,7 @@ const App: React.FC = () => {
       setHistoryIndex(newIndex);
       setGenerationResult(nextItem.result);
       setOriginalImage(nextItem.original);
+      setActiveInputImage(base64ToUploadedImage(nextItem.result.imageUrl, nextItem.original));
     }
   };
 
@@ -144,8 +208,6 @@ const App: React.FC = () => {
     if (!generationResult || !originalImage) return;
 
     setIsSending(true);
-    
-    // Simulate network delay for sending to external app
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const newSavedImage: SavedImage = {
@@ -156,12 +218,9 @@ const App: React.FC = () => {
     };
 
     setSavedImages(prev => [newSavedImage, ...prev]);
-    
     const appName = getTargetAppName();
     setNotification(`Image successfully sent to ${appName}!`);
     setIsSending(false);
-
-    // Clear notification after 3 seconds
     setTimeout(() => setNotification(null), 3000);
   };
 
@@ -195,14 +254,41 @@ const App: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={handleConnectKey}
-            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/20 transition-all flex items-center justify-center gap-3 group"
-          >
-            <Key size={20} className="group-hover:rotate-12 transition-transform" />
-            Connect API Key
-            <ArrowRight size={20} className="opacity-60 group-hover:translate-x-1 transition-transform" />
-          </button>
+          {/* Conditional Rendering: AI Studio vs Manual Input */}
+          {window.aistudio ? (
+            <button
+              onClick={handleConnectKey}
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/20 transition-all flex items-center justify-center gap-3 group"
+            >
+              <Key size={20} className="group-hover:rotate-12 transition-transform" />
+              Connect API Key
+              <ArrowRight size={20} className="opacity-60 group-hover:translate-x-1 transition-transform" />
+            </button>
+          ) : (
+            <form onSubmit={handleManualKeySubmit} className="space-y-4 text-left">
+              <div>
+                <label className="block text-xs font-medium text-slate-400 mb-1 ml-1">
+                  Gemini API Key
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    value={customApiKey}
+                    onChange={(e) => setCustomApiKey(e.target.value)}
+                    placeholder="Paste your API key here..."
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none pl-10"
+                  />
+                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/20 transition-all flex items-center justify-center gap-2"
+              >
+                Access Editor <ArrowRight size={18} />
+              </button>
+            </form>
+          )}
 
           <div className="text-xs text-slate-500 pt-4 border-t border-slate-700">
             <p>Securely processed via Google AI Studio.</p>
@@ -245,6 +331,7 @@ const App: React.FC = () => {
                 onGenerate={handleGeneration} 
                 isGenerating={isGenerating} 
                 history={savedImages.filter(img => img.mode === AppMode.RENOVATION)}
+                activeInputImage={activeInputImage}
               />
             )}
             {mode === AppMode.MARKETPLACE && (
@@ -252,10 +339,15 @@ const App: React.FC = () => {
                 onGenerate={(prompt, img) => handleGeneration(prompt, img)} 
                 isGenerating={isGenerating} 
                 history={savedImages.filter(img => img.mode === AppMode.MARKETPLACE)}
+                activeInputImage={activeInputImage}
               />
             )}
             {mode === AppMode.GENERAL && (
-              <GeneralPanel onGenerate={(prompt, img) => handleGeneration(prompt, img)} isGenerating={isGenerating} />
+              <GeneralPanel 
+                onGenerate={(prompt, img, refs) => handleGeneration(prompt, img, refs)}
+                isGenerating={isGenerating}
+                activeInputImage={activeInputImage}
+              />
             )}
           </div>
 
@@ -268,7 +360,7 @@ const App: React.FC = () => {
             isSending={isSending}
             onUndo={handleUndo}
             onRedo={handleRedo}
-            canUndo={historyIndex > 0}
+            canUndo={historyIndex >= 0}
             canRedo={historyIndex < sessionHistory.length - 1}
           />
           
