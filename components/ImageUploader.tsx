@@ -61,10 +61,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   return (
     <div className={`relative ${className}`}>
-      <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-600 rounded-2xl cursor-pointer bg-slate-800/50 hover:bg-slate-800 transition-colors hover:border-indigo-500 group">
+      <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-600 rounded-2xl cursor-pointer bg-slate-800/50 hover:bg-slate-800 transition-colors hover:border-orange-500 group">
         <div className="flex flex-col items-center justify-center pt-5 pb-6">
           <div className="bg-slate-700 p-3 rounded-full mb-3 group-hover:bg-slate-600 transition-colors">
-            <Upload className="w-6 h-6 text-slate-400 group-hover:text-indigo-400" />
+            <Upload className="w-6 h-6 text-slate-400 group-hover:text-orange-400" />
           </div>
           <p className="mb-2 text-sm text-slate-300 font-medium">{label}</p>
           <p className="text-xs text-slate-500">SVG, PNG, JPG or WEBP</p>

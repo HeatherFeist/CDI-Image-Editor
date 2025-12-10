@@ -228,7 +228,7 @@ const App: React.FC = () => {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-slate-900 text-slate-200">
         <div className="animate-pulse flex flex-col items-center">
-          <Sparkles size={48} className="text-indigo-500 mb-4" />
+          <Sparkles size={48} className="text-orange-500 mb-4" />
           <p className="text-lg font-medium text-slate-400">Initializing CDI Image Editor...</p>
         </div>
       </div>
@@ -240,13 +240,13 @@ const App: React.FC = () => {
       <div className="flex h-screen w-full items-center justify-center bg-slate-900 text-slate-200 p-6">
         <div className="max-w-md w-full bg-slate-800 rounded-3xl p-8 md:p-12 shadow-2xl border border-slate-700 text-center space-y-8">
           <div className="flex justify-center">
-            <div className="bg-indigo-600/20 p-4 rounded-2xl ring-1 ring-indigo-500/30">
-               <Sparkles size={48} className="text-indigo-400" />
+            <div className="bg-orange-600/20 p-4 rounded-2xl ring-1 ring-orange-500/30">
+               <Sparkles size={48} className="text-orange-400" />
             </div>
           </div>
           
           <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400 mb-3">
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-red-500 mb-3">
               CDI Image Editor
             </h1>
             <p className="text-slate-400 leading-relaxed">
@@ -258,7 +258,7 @@ const App: React.FC = () => {
           {window.aistudio ? (
             <button
               onClick={handleConnectKey}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/20 transition-all flex items-center justify-center gap-3 group"
+              className="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-3 group"
             >
               <Key size={20} className="group-hover:rotate-12 transition-transform" />
               Connect API Key
@@ -276,14 +276,14 @@ const App: React.FC = () => {
                     value={customApiKey}
                     onChange={(e) => setCustomApiKey(e.target.value)}
                     placeholder="Paste your API key here..."
-                    className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none pl-10"
+                    className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none pl-10"
                   />
                   <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
                 </div>
               </div>
               <button
                 type="submit"
-                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/20 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-2"
               >
                 Access Editor <ArrowRight size={18} />
               </button>
@@ -292,7 +292,7 @@ const App: React.FC = () => {
 
           <div className="text-xs text-slate-500 pt-4 border-t border-slate-700">
             <p>Securely processed via Google AI Studio.</p>
-            <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline mt-1 inline-block">
+            <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="text-orange-400 hover:underline mt-1 inline-block">
               View Billing & Access Details
             </a>
           </div>

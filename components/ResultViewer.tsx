@@ -81,7 +81,7 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
             <button
               onClick={onSendToApp}
               disabled={isSending}
-              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-semibold rounded-lg shadow-lg shadow-indigo-900/20 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+              className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-semibold rounded-lg shadow-lg shadow-orange-900/20 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
             >
               {isSending ? (
                 <CheckCircle size={18} className="animate-pulse" />
@@ -113,7 +113,7 @@ export const ResultViewer: React.FC<ResultViewerProps> = ({
               alt="Generated Result" 
               className="w-full h-full object-contain animate-fade-in"
             />
-            <div className="absolute top-4 left-4 bg-indigo-600/80 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm shadow-lg">
+            <div className="absolute top-4 left-4 bg-orange-600/80 text-white px-3 py-1 rounded-full text-sm backdrop-blur-sm shadow-lg">
               AI Generated
             </div>
           </div>

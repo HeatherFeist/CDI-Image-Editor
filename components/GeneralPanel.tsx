@@ -66,7 +66,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
         <div className="w-full lg:w-1/2 space-y-6">
            {/* Base Image Section */}
            <div className="space-y-4">
-             <h3 className="text-sm font-semibold text-purple-400 uppercase tracking-wider">1. Base Image</h3>
+             <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">1. Base Image</h3>
              <ImageUploader 
               label="Upload Image to Edit"
               image={baseImage}
@@ -78,7 +78,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
            {/* Reference Images Section */}
            <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-semibold text-purple-400 uppercase tracking-wider">2. Assets to Integrate (Optional)</h3>
+              <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">2. Assets to Integrate (Optional)</h3>
               <span className="text-xs text-slate-500">{referenceImages.length} items</span>
             </div>
             
@@ -96,7 +96,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
               ))}
               
               <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-slate-700 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors group">
-                 <Plus className="text-slate-500 group-hover:text-purple-400 mb-1" size={20} />
+                 <Plus className="text-slate-500 group-hover:text-orange-400 mb-1" size={20} />
                  <span className="text-[10px] text-slate-500 group-hover:text-slate-300 text-center px-1">Add Asset</span>
                  <input type="file" className="hidden" accept="image/*" onChange={(e) => {
                    const file = e.target.files?.[0];
@@ -124,12 +124,12 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
 
         <div className="w-full lg:w-1/2 flex flex-col justify-between">
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-purple-400 uppercase tracking-wider">3. Edit Instructions</h3>
+            <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">3. Edit Instructions</h3>
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="e.g., Place the logo (image 2) on the wall, change the sky to night time, and make the lighting dramatic."
-              className="w-full h-64 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none placeholder:text-slate-600 resize-none"
+              className="w-full h-64 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600 resize-none"
             />
             <p className="text-xs text-slate-500">
               Tip: Be specific about how you want the uploaded assets to be used.
@@ -139,7 +139,7 @@ export const GeneralPanel: React.FC<GeneralPanelProps> = ({
           <button
             onClick={handleSubmit}
             disabled={!baseImage || !prompt || isGenerating}
-            className="w-full py-4 mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 mt-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             {isGenerating ? (
               <>

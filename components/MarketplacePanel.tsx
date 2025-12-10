@@ -54,7 +54,7 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-4">
-          <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider">Product Photo</h3>
+          <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">Product Photo</h3>
           <ImageUploader 
             label="Upload Product"
             image={productImage}
@@ -75,7 +75,7 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
 
         <div className="lg:col-span-2 space-y-6">
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wider">Background Setting</h3>
+            <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">Background Setting</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                {[
                  "On a clean white marble countertop with soft morning light",
@@ -86,7 +86,7 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
                  <button
                    key={idx}
                    onClick={() => setPrompt(preset)}
-                   className="text-left text-xs p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-cyan-500 hover:text-cyan-300 transition-colors"
+                   className="text-left text-xs p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-orange-500 hover:text-orange-300 transition-colors"
                  >
                    {preset}
                  </button>
@@ -96,14 +96,14 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe the background scene... e.g. On a velvet podium with dramatic spotlighting."
-              className="w-full h-40 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none placeholder:text-slate-600 resize-none"
+              className="w-full h-40 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600 resize-none"
             />
           </div>
 
           <button
             onClick={handleSubmit}
             disabled={!productImage || !prompt || isGenerating}
-            className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
             {isGenerating ? (
               <>

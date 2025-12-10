@@ -27,10 +27,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, onModeChange }) =
   return (
     <aside className="w-full md:w-64 bg-slate-900 border-r border-slate-800 flex flex-col h-full shrink-0">
       <div className="p-6 flex items-center gap-3">
-        <div className="bg-indigo-600 p-2 rounded-lg">
+        <div className="bg-orange-600 p-2 rounded-lg">
           <Layers className="text-white" size={24} />
         </div>
-        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">
+        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-red-500">
           CDI Image Editor
         </h1>
       </div>
@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentMode, onModeChange }) =
             onClick={() => onModeChange(mode.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm font-medium ${
               currentMode === mode.id
-                ? 'bg-slate-800 text-indigo-400 shadow-lg shadow-indigo-900/10 border border-slate-700/50'
+                ? 'bg-slate-800 text-orange-400 shadow-lg shadow-orange-900/10 border border-slate-700/50'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
             }`}
           >

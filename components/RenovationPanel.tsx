@@ -94,7 +94,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-            <Hammer className="text-indigo-400" />
+            <Hammer className="text-orange-400" />
             Renovation Visualizer
           </h2>
           <p className="text-slate-400">Upload a "Before" photo and visualize the finished project.</p>
@@ -106,7 +106,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
             onClick={() => setInputMode('manual')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               inputMode === 'manual' 
-                ? 'bg-indigo-600 text-white shadow-lg' 
+                ? 'bg-orange-600 text-white shadow-lg' 
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -116,7 +116,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
             onClick={() => setInputMode('estimate')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
               inputMode === 'estimate' 
-                ? 'bg-indigo-600 text-white shadow-lg' 
+                ? 'bg-orange-600 text-white shadow-lg' 
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
@@ -127,7 +127,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider">1. Site Photo (Before)</h3>
+          <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">1. Site Photo (Before)</h3>
           <ImageUploader 
             label="Upload Site Photo"
             image={baseImage}
@@ -138,7 +138,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider">2. Materials & Products</h3>
+            <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider">2. Materials & Products</h3>
             <span className="text-xs text-slate-500">{productImages.length} items</span>
           </div>
           
@@ -156,7 +156,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
             ))}
             
             <label className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-slate-700 rounded-xl cursor-pointer hover:bg-slate-800 transition-colors group">
-               <Plus className="text-slate-500 group-hover:text-indigo-400 mb-1" />
+               <Plus className="text-slate-500 group-hover:text-orange-400 mb-1" />
                <span className="text-xs text-slate-500 group-hover:text-slate-300 text-center px-2">Add Material / Product</span>
                <input type="file" className="hidden" accept="image/*" onChange={(e) => {
                  const file = e.target.files?.[0];
@@ -180,7 +180,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-orange-400 uppercase tracking-wider flex items-center gap-2">
           3. {inputMode === 'manual' ? 'Design Instructions' : 'Project Estimate / Scope'}
         </h3>
         
@@ -190,7 +190,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
               value={manualPrompt}
               onChange={(e) => setManualPrompt(e.target.value)}
               placeholder="e.g., Replace the old floor with the tile provided, install the vanity cabinet on the back wall, and paint the remaining walls a soft white."
-              className="w-full h-40 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none placeholder:text-slate-600 resize-none"
+              className="w-full h-40 bg-slate-800 border border-slate-700 rounded-xl p-4 text-slate-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600 resize-none"
             />
           </div>
         ) : (
@@ -218,7 +218,7 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
       <button
         onClick={handleSubmit}
         disabled={isSubmitDisabled}
-        className="w-full py-4 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+        className="w-full py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white font-bold rounded-xl shadow-lg shadow-orange-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
       >
         {isGenerating ? (
           <>
