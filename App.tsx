@@ -205,7 +205,7 @@ const App: React.FC = () => {
     switch (mode) {
       case AppMode.RENOVATION: return 'Renovision Pro';
       case AppMode.MARKETPLACE: return 'CDI Marketplace';
-      case AppMode.MERCHANT_COIN: return 'Merchant Wallet';
+      case AppMode.MERCHANT_COIN: return 'Quantum Wallet';
       default: return 'My Library';
     }
   };

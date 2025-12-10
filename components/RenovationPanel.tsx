@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, Plus, Hammer, History, FileText, PenTool, ClipboardList, ExternalLink, UserPlus } from 'lucide-react';
+import { ArrowRight, Loader2, Plus, Hammer, History, FileText, PenTool, ClipboardList, ExternalLink, UserPlus, Check } from 'lucide-react';
 
 interface RenovationPanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage, refImages: UploadedImage[]) => Promise<void>;
@@ -267,18 +267,18 @@ export const RenovationPanel: React.FC<RenovationPanelProps> = ({
       {history.length > 0 && (
         <div className="pt-8 border-t border-slate-800">
           <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
-            <History size={20} /> Renovision Pro Library
+            <History size={20} /> Renovision Pro • Project Bucket
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {history.map((item) => (
-              <div key={item.id} className="group relative rounded-lg overflow-hidden border border-slate-700 aspect-square">
+              <div key={item.id} className="group relative rounded-lg overflow-hidden border border-slate-700 aspect-square hover:border-orange-500 transition-colors">
                 <img src={item.imageUrl} alt="Saved Renovation" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                  <p className="text-xs text-white font-medium truncate">Sent to App</p>
+                  <p className="text-xs text-white font-medium truncate">Synced to Renovision</p>
                   <p className="text-[10px] text-slate-400">{new Date(item.timestamp).toLocaleDateString()}</p>
                 </div>
                 <div className="absolute top-2 right-2 bg-green-500/90 p-1 rounded-full">
-                   <ArrowRight size={12} className="text-white -rotate-45" />
+                   <Check size={12} className="text-white" />
                 </div>
               </div>
             ))}

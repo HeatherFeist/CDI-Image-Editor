@@ -4,19 +4,19 @@ export const APP_MODES = [
   {
     id: AppMode.RENOVATION,
     label: 'Home Renovation',
-    description: 'Visualize upgrades by installing products or analyzing project estimates.',
+    description: 'Visualize upgrades and sync estimates directly to your Renovision Pro Project Bucket.',
     icon: 'Home'
   },
   {
     id: AppMode.MARKETPLACE,
     label: 'Marketplace Studio',
-    description: 'Create professional product backgrounds while keeping items true to life.',
+    description: 'Create professional staging and send assets directly to your CDI Marketplace Listing Bucket.',
     icon: 'ShoppingBag'
   },
   {
     id: AppMode.MERCHANT_COIN,
     label: 'Merchant Coin Studio',
-    description: 'Design premium marketing visuals and 3D effects for branding coins.',
+    description: 'Design premium visuals and sync branding assets to your Quantum Wallet.',
     icon: 'Coins'
   },
   {

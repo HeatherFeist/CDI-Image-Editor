@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, Coins, Gem, Zap, History, Plus, Upload, Type } from 'lucide-react';
+import { ArrowRight, Loader2, Coins, Gem, Zap, History, Plus, Upload, Type, Check } from 'lucide-react';
 
 interface MerchantCoinPanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage | null) => Promise<void>;
@@ -22,6 +22,7 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
   const [coinImage, setCoinImage] = useState<UploadedImage | null>(null);
   const [coinName, setCoinName] = useState('');
   const [prompt, setPrompt] = useState('');
+  const [showValidation, setShowValidation] = useState(false);
 
   // Effect to handle cumulative edits
   useEffect(() => {
@@ -55,8 +56,13 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
   ];
 
   const handleSubmit = () => {
+    if (mode === 'create' && !coinName.trim()) {
+      setShowValidation(true);
+      return;
+    }
+    
+    setShowValidation(false);
     if (mode === 'enhance' && !coinImage) return;
-    if (mode === 'create' && !coinName) return;
 
     let finalPrompt = '';
 
@@ -76,14 +82,14 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
     } else {
       // Create from Scratch
       finalPrompt = `You are an expert logo designer and 3D artist.
-      TASK: Create a new cryptocurrency logo/coin from scratch.
+      TASK: Create a new branded token/coin from scratch.
       
       BRAND NAME: "${coinName}"
       
       DESIGN STYLE & BACKGROUND: ${prompt}
       
       INSTRUCTIONS:
-      1. LOGO DESIGN: Create a modern, iconic logo for the coin named "${coinName}". The text "${coinName}" should be clearly legible on the coin face or near it.
+      1. LOGO DESIGN: Create a modern, iconic logo for the brand named "${coinName}". The text "${coinName}" should be clearly legible on the coin face or near it.
       2. 3D RENDERING: Render this as a physical "Merchant Coin" or "Token". 
       3. VISUALS: Ensure high resolution, sharp details, and premium materials (gold, silver, holographic, etc. based on style).
       
@@ -93,7 +99,7 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
     }
   };
 
-  const isDisabled = isGenerating || (mode === 'enhance' ? !coinImage : !coinName) || !prompt;
+  const isDisabled = isGenerating || (mode === 'enhance' && !coinImage) || !prompt;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -145,7 +151,9 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
               className="h-80"
             />
           ) : (
-            <div className="h-80 bg-slate-800/50 border border-slate-700 rounded-2xl p-6 flex flex-col justify-center space-y-6">
+            <div className={`h-80 bg-slate-800/50 border rounded-2xl p-6 flex flex-col justify-center space-y-6 transition-colors ${
+              showValidation ? 'border-red-500/50 bg-red-900/10' : 'border-slate-700'
+            }`}>
               <div className="text-center">
                 <div className="w-16 h-16 bg-orange-600/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-orange-500/30">
                   <Type className="text-orange-400" size={32} />
@@ -153,13 +161,25 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
                 <h4 className="text-white font-medium mb-1">Name Your Coin</h4>
                 <p className="text-xs text-slate-500">What text should appear on the coin?</p>
               </div>
-              <input
-                type="text"
-                value={coinName}
-                onChange={(e) => setCoinName(e.target.value)}
-                placeholder="e.g. Bitcoin, CDI Token, GoldStar..."
-                className="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={coinName}
+                  onChange={(e) => {
+                    setCoinName(e.target.value);
+                    if (e.target.value) setShowValidation(false);
+                  }}
+                  placeholder="e.g. Bitcoin, CDI Token..."
+                  className={`w-full bg-slate-900 border rounded-xl px-4 py-3 text-center text-white font-bold text-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none placeholder:text-slate-600 ${
+                    showValidation ? 'border-red-500 ring-1 ring-red-500' : 'border-slate-600'
+                  }`}
+                />
+                {showValidation && (
+                  <p className="absolute -bottom-6 left-0 right-0 text-center text-xs text-red-400 font-medium">
+                    Please enter a name to proceed.
+                  </p>
+                )}
+              </div>
               <div className="text-center">
                  <p className="text-xs text-orange-400/80">
                    AI will generate a unique logo and 3D coin design based on this name.
@@ -224,17 +244,17 @@ export const MerchantCoinPanel: React.FC<MerchantCoinPanelProps> = ({
            {history.length > 0 && (
             <div className="pt-8 border-t border-slate-800">
               <h3 className="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
-                <History size={20} /> Saved Branding Assets
+                <History size={20} /> Quantum Wallet • Asset Bucket
               </h3>
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 {history.map((item) => (
-                  <div key={item.id} className="group relative rounded-lg overflow-hidden border border-slate-700 aspect-square">
+                  <div key={item.id} className="group relative rounded-lg overflow-hidden border border-slate-700 aspect-square hover:border-orange-500 transition-colors">
                     <img src={item.imageUrl} alt="Saved Asset" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
-                      <p className="text-xs text-white font-medium truncate">Coin Asset</p>
+                      <p className="text-xs text-white font-medium truncate">Synced to Wallet</p>
                     </div>
-                     <div className="absolute top-1 right-1 bg-yellow-500/90 p-1 rounded-full">
-                       <ArrowRight size={10} className="text-black -rotate-45" />
+                     <div className="absolute top-1 right-1 bg-yellow-500/90 p-1 rounded-full shadow-sm">
+                       <Check size={10} className="text-black" />
                     </div>
                   </div>
                 ))}
