@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ImageUploader } from './ImageUploader';
 import { ImageCropper } from './ImageCropper';
 import { UploadedImage, SavedImage } from '../types';
-import { ArrowRight, Loader2, ShieldCheck, History, AlertCircle, Check, Crop, ExternalLink, Store } from 'lucide-react';
+import { ArrowRight, Loader2, ShieldCheck, History, AlertCircle, Check, Crop, ExternalLink, Store, RefreshCw } from 'lucide-react';
 
 interface MarketplacePanelProps {
   onGenerate: (prompt: string, baseImage: UploadedImage) => Promise<void>;
@@ -96,10 +96,10 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
             {productImage && (
               <button 
                 onClick={() => setCroppingImage(productImage.previewUrl)}
-                className="absolute bottom-4 right-4 bg-slate-800 text-slate-200 p-2 rounded-lg border border-slate-600 hover:bg-slate-700 hover:text-orange-400 transition-colors shadow-lg z-10"
+                className="absolute bottom-4 right-4 bg-slate-900 text-slate-200 p-2 rounded-lg border border-slate-600 hover:bg-slate-800 hover:text-orange-400 transition-colors shadow-lg z-10 flex items-center gap-2 text-xs font-bold"
                 title="Crop Image"
               >
-                <Crop size={18} />
+                <Crop size={16} /> Re-Crop
               </button>
             )}
           </div>
@@ -115,19 +115,29 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
           </div>
 
           {/* CDI Marketplace Integration Card */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl p-4 shadow-lg">
-             <div className="flex items-center gap-2 mb-3 text-orange-400 font-bold text-sm">
-               <Store size={18} /> Connect to Marketplace
+          <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl p-5 shadow-lg relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-2">
+                <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-full">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wide">Live Sync</span>
+                </div>
              </div>
-             <p className="text-xs text-slate-400 mb-4">
-               Manage listings and sync assets directly to your seller dashboard.
+             
+             <div className="flex items-center gap-2 mb-2 text-orange-400 font-bold text-sm">
+               <Store size={18} /> CDI Marketplace
+             </div>
+             <p className="text-xs text-slate-400 mb-4 pr-16 leading-relaxed">
+               Generated assets are automatically formatted for the marketplace. Send them directly to your seller dashboard.
              </p>
-             <div className="grid grid-cols-2 gap-2">
+             <div className="grid grid-cols-2 gap-3">
                 <a 
                   href="https://marketplace.constructivedesignsinc.org" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold py-2 px-3 rounded-lg transition-colors"
+                  className="flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold py-2.5 px-3 rounded-lg transition-colors shadow-md shadow-orange-900/20"
                 >
                   Launch App <ExternalLink size={12} />
                 </a>
@@ -135,7 +145,7 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
                   href="https://marketplace.constructivedesignsinc.org/dashboard" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold py-2 px-3 rounded-lg border border-slate-600 transition-colors"
+                  className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold py-2.5 px-3 rounded-lg border border-slate-600 transition-colors"
                 >
                   Seller Dash
                 </a>
@@ -145,7 +155,7 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
           <div className="bg-slate-800/50 border border-slate-700 p-3 rounded-xl flex gap-2 items-start text-xs text-slate-400">
              <AlertCircle size={14} className="mt-0.5 text-orange-400 shrink-0" />
              <p>
-               <strong>Tip for Clothing:</strong> For best results, use a mannequin or flat-lay photo. Avoid photos with faces to prevent safety blocks.
+               <strong>Tip:</strong> Crop your product tightly (1:1 square) for the best results on the marketplace listing page.
              </p>
           </div>
         </div>
@@ -206,7 +216,7 @@ export const MarketplacePanel: React.FC<MarketplacePanelProps> = ({
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
                       <p className="text-xs text-white font-medium truncate">Synced to Marketplace</p>
                     </div>
-                     <div className="absolute top-1 right-1 bg-emerald-600/90 p-1 rounded-full shadow-sm">
+                     <div className="absolute top-1 right-1 bg-emerald-600/90 p-1 rounded-full shadow-sm flex items-center justify-center w-5 h-5">
                        <Check size={10} className="text-white" />
                     </div>
                   </div>
