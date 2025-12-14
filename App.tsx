@@ -123,8 +123,9 @@ const App: React.FC = () => {
 
     try {
       // Pass the custom key if it exists, otherwise the service will try process.env
+      // Switched to gemini-2.0-flash-exp as gemini-2.5-flash-image availability varies by region/tier
       const generatedBase64 = await generateImageEdit(
-        'gemini-2.5-flash-image',
+        'gemini-2.0-flash-exp',
         prompt,
         baseImage?.base64 || null,
         baseImage?.mimeType || null,
